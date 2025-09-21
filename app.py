@@ -1,17 +1,42 @@
-from flask import Flask, render_template, request
+from flask import Flask, render_template, request, redirect, url_for
 import pyfiglet
 
 app = Flask(__name__)
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
-    ascii_art = ''
     if request.method == 'POST':
-        text = request.form['text']
-        font = request.form['font']
-        fig = pyfiglet.Figlet(font=font)
-        ascii_art = fig.renderText(text)
-    return render_template('index.html', ascii_art=ascii_art)
+        text = request.form.get('text', '').strip()
+        font = request.form.get('font', 'standard')
+        
+        # Validate input
+        if not text:
+            return render_template('index.html', ascii_art='', error_message="Please enter some text to convert.")
+        
+        try:
+            # Try to create the figlet with the specified font
+            fig = pyfiglet.Figlet(font=font)
+            ascii_art = fig.renderText(text)
+            return render_template('index.html', ascii_art=ascii_art, error_message='')
+        except pyfiglet.FontNotFound:
+            # Handle invalid font gracefully
+            error_message = f"Font '{font}' not found. Using standard font instead."
+            fig = pyfiglet.Figlet(font='standard')
+            ascii_art = fig.renderText(text)
+            return render_template('index.html', ascii_art=ascii_art, error_message=error_message)
+        except Exception as e:
+            # Handle any other unexpected errors
+            error_message = "An error occurred while generating ASCII art. Please try again."
+            print(f"Unexpected error: {e}")  # Log for debugging
+            return render_template('index.html', ascii_art='', error_message=error_message)
+    
+    # GET request - always render completely clean form with no output
+    return render_template('index.html', ascii_art='', error_message='')
+
+@app.route('/clear')
+def clear():
+    """Route to completely clear and redirect to fresh page"""
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)

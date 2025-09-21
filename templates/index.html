@@ -1,24 +1,291 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ASCII Art Generator</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+            background: #fafafa;
+            color: #333;
+            line-height: 1.6;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+            padding: 48px;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid rgba(0, 0, 0, 0.04);
+        }
+
+        h1 {
+            font-size: 1.875rem;
+            font-weight: 600;
+            color: #1a1a1a;
+            margin-bottom: 32px;
+            text-align: center;
+            letter-spacing: -0.025em;
+        }
+
+        .form-group {
+            margin-bottom: 24px;
+        }
+
+        label {
+            display: block;
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #4a4a4a;
+            margin-bottom: 8px;
+            letter-spacing: 0.01em;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1.5px solid #e5e5e5;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+            appearance: none;
+        }
+
+        input[type="text"]:focus, select:focus {
+            outline: none;
+            border-color: #6b7280;
+            box-shadow: 0 0 0 3px rgba(107, 114, 128, 0.08);
+        }
+
+        select {
+            cursor: pointer;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 14px 24px;
+            background: #1a1a1a;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease, transform 0.1s ease;
+        }
+
+        .submit-btn:hover {
+            background: #2a2a2a;
+            transform: translateY(-1px);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            background: #fef2f2;
+            border: 1px solid #fed7d7;
+            color: #c53030;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 24px;
+            font-size: 0.875rem;
+        }
+
+        .output-section {
+            margin-top: 32px;
+            border-top: 1px solid #e5e5e5;
+            padding-top: 32px;
+        }
+
+        .output-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .output-title {
+            font-size: 1rem;
+            font-weight: 500;
+            color: #1a1a1a;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .copy-btn, .clear-btn {
+            padding: 6px 12px;
+            background: #f7f7f7;
+            color: #4a4a4a;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+            text-decoration: none;
+        }
+
+        .copy-btn:hover, .clear-btn:hover {
+            background: #f0f0f0;
+            border-color: #d1d1d1;
+        }
+
+        .clear-btn {
+            background: #fee;
+            color: #c53030;
+            border-color: #fed7d7;
+        }
+
+        .clear-btn:hover {
+            background: #fecaca;
+            border-color: #fca5a5;
+        }
+
+        .ascii-output {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .ascii-output pre {
+            font-family: 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            color: #2a2a2a;
+            margin: 0;
+            white-space: pre;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 32px 24px;
+                margin: 16px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+                margin-bottom: 24px;
+            }
+
+            .ascii-output pre {
+                font-size: 12px;
+            }
+
+            .output-header {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 12px;
+            }
+
+            .action-buttons {
+                align-self: flex-start;
+            }
+        }
+    </style>
 </head>
 <body>
-    <h1>ASCII Art Generator</h1>
-    <form action="/" method="post">
-        <label for="text">Text:</label><br>
-        <input type="text" id="text" name="text"><br>
-        <label for="font">Font:</label><br>
-        <select id="font" name="font">
-            <option value="block">Block</option>
-            <option value="banner">Banner</option>
-            <option value="standard">Standard</option>
-            <option value="cosmic">Cosmic</option>
-        </select><br><br>
-        <input type="submit" value="Generate">
-    </form>
-    {% if ascii_art %}
-    <pre>{{ ascii_art }}</pre>
-    {% endif %}
+    <div class="container">
+        <h1>ASCII Art Generator</h1>
+        
+        {% if error_message %}
+        <div class="error-message">
+            {{ error_message }}
+        </div>
+        {% endif %}
+        
+        <form action="/" method="post" autocomplete="off">
+            <div class="form-group">
+                <label for="text">Enter your text</label>
+                <input type="text" 
+                       id="text" 
+                       name="text" 
+                       placeholder="Type something..."
+                       autocomplete="off"
+                       required>
+            </div>
+            
+            <div class="form-group">
+                <label for="font">Choose font style</label>
+                <select id="font" name="font" autocomplete="off">
+                    <option value="block">Block</option>
+                    <option value="banner">Banner</option>
+                    <option value="standard">Standard</option>
+                    <option value="cosmic">Cosmic</option>
+                </select>
+            </div>
+            
+            <button type="submit" class="submit-btn">
+                Generate
+            </button>
+        </form>
+        
+        {% if ascii_art %}
+        <div class="output-section">
+            <div class="output-header">
+                <span class="output-title">Your ASCII Art</span>
+                <div class="action-buttons">
+                    <button class="copy-btn" onclick="copyToClipboard()">Copy</button>
+                    <a href="{{ url_for('clear') }}" class="clear-btn">Clear</a>
+                </div>
+            </div>
+            <div class="ascii-output">
+                <pre id="ascii-text">{{ ascii_art }}</pre>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+
+    <script>
+        function copyToClipboard() {
+            const asciiText = document.getElementById('ascii-text');
+            const text = asciiText.textContent;
+            
+            navigator.clipboard.writeText(text).then(function() {
+                const copyBtn = document.querySelector('.copy-btn');
+                const originalText = copyBtn.textContent;
+                copyBtn.textContent = 'Copied!';
+                copyBtn.style.background = '#f0f9ff';
+                copyBtn.style.color = '#0369a1';
+                copyBtn.style.borderColor = '#bae6fd';
+                
+                setTimeout(() => {
+                    copyBtn.textContent = originalText;
+                    copyBtn.style.background = '#f7f7f7';
+                    copyBtn.style.color = '#4a4a4a';
+                    copyBtn.style.borderColor = '#e5e5e5';
+                }, 2000);
+            }).catch(function(err) {
+                console.error('Could not copy text: ', err);
+                alert('Failed to copy to clipboard');
+            });
+        }
+    </script>
 </body>
 </html>
